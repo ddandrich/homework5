@@ -2,11 +2,13 @@
 ideal.py — Ideal Rocket Relations
 
 This module provides simple functions for computing common ideal-rocket
-performance parameters, including characteristic velocity (c*), area_ratio, thrust
-coefficient (C_F), specific impulse (ISP), exhaust velocity (ve), propellant mass flow (m_dot), and thrust under standard assumptions of isentropic, steady, and
-choked flow.
+performance parameters, including characteristic velocity (c*), area_ratio,
+thrust coefficient (C_F), specific impulse (ISP), exhaust velocity (ve),
+propellant mass flow (m_dot), and thrust under standard assumptions of
+isentropic, steady, and choked flow.
 
-*Note: This package can be used for rockets designed at sea level (Pe=Pa) and for back pressure conditions (Pe=/Pa)
+Note: This package can be used for rockets designed at sea level (Pe = Pa)
+and for back pressure conditions (Pe ≠ Pa).
 """
 
 import numpy as np
@@ -21,11 +23,11 @@ def c_star(gamma, R, T0):
     R = np.asarray(R)
     T0 = np.asarray(T0)
 
-    # c_star calculation
+    # c* calculation
     if np.any(gamma <= 1) or np.any(R <= 0) or np.any(T0 <= 0):
         raise ValueError("Invalid inputs: gamma>1, R>0, T0>0 required.")
     else:
-        return np.sqrt((1 / gamma) * ((gamma + 1) / 2) ** ((gamma + 1) / (gamma - 1)) * R * T0)
+        return np.sqrt((1 / gamma)* ((gamma + 1) / 2) ** ((gamma + 1) / (gamma - 1))* R* T0)
 
 
 # function for computing thrust coefficient
@@ -43,14 +45,18 @@ def thrust_coefficient(gamma, Pe, Pa, P0, area_ratio):
     pa_p0 = Pa / P0
 
     # Compute the ideal thrust coefficient for back pressure conditions
-    if np.any(gamma <= 1) or np.any((pe_p0 < 0) | (pe_p0 >= 1)) or np.any((pa_p0 < 0) | (pa_p0 >= 1)) or np.any(area_ratio < 1):
+    if (
+        np.any(gamma <= 1)
+        or np.any((pe_p0 < 0) | (pe_p0 >= 1))
+        or np.any((pa_p0 < 0) | (pa_p0 >= 1))
+        or np.any(area_ratio < 1)
+    ):
         raise ValueError("Invalid input values.")
     else:
-        term_1 = (2 * gamma**2 / (gamma - 1)) * (2 / (gamma + 1)) ** ((gamma + 1) / (gamma - 1))
+        term_1 = ((2 * gamma**2 / (gamma - 1))* (2 / (gamma + 1)) ** ((gamma + 1) / (gamma - 1)))
         term_2 = 1 - pe_p0 ** ((gamma - 1) / gamma)
         cf_isentropic = np.sqrt(term_1 * term_2)
 
-        # if Pe == Pa, return isentropic-only
         if np.all(Pe == Pa):
             return cf_isentropic
         else:
@@ -70,14 +76,13 @@ def area_ratio(gamma, Pe, P0):
     if np.any(gamma <= 1) or np.any(Pe <= 0) or np.any(P0 <= 0):
         raise ValueError("Invalid input values.")
     else:
-        term_a_1 = np.sqrt((gamma - 1) / 2) * ((2) / gamma + 1) ** ((gamma + 1) / (2 * (gamma - 1)))
+        term_a_1 = np.sqrt((gamma - 1) / 2) * ((2 / gamma + 1) ** ((gamma + 1) / (2 * (gamma - 1))))
         term_a_2 = (Pe / P0) ** (1 / gamma)
         term_a_3 = np.sqrt(1 - (Pe / P0) ** ((gamma - 1) / gamma))
-        area_ratio = term_a_1 * (1 / (term_a_2 * term_a_3))
-        return area_ratio
+        return term_a_1 * (1 / (term_a_2 * term_a_3))
 
 
-# function for computing specific impulse (Isp)
+# function for computing specific impulse
 def Isp(cf, g0, c_star):
 
     # convert inputs (allows numpy arrays)
@@ -85,7 +90,6 @@ def Isp(cf, g0, c_star):
     g0 = np.asarray(g0)
     c_star = np.asarray(c_star)
 
-    # check for valid inputs
     if np.any(c_star <= 0) or np.any(g0 <= 0):
         raise ValueError("Invalid input values.")
     else:
@@ -102,14 +106,17 @@ def ve(gamma, R, T0, Pe, P0):
     Pe = np.asarray(Pe)
     P0 = np.asarray(P0)
 
-    # Calculate pressure ratio
     pe_p0 = Pe / P0
 
-    # Compute the exhaust velocity
-    if np.any(gamma <= 1) or np.any((pe_p0 < 0) | (pe_p0 >= 1)) or np.any(T0 <= 0) or np.any(R <= 0):
+    if (
+        np.any(gamma <= 1)
+        or np.any((pe_p0 < 0) | (pe_p0 >= 1))
+        or np.any(T0 <= 0)
+        or np.any(R <= 0)
+    ):
         raise ValueError("Invalid input values.")
     else:
-        return np.sqrt(2 * (gamma / (gamma - 1)) * R * T0 * (1 - (pe_p0) ** ((gamma - 1) / gamma)))
+        return np.sqrt( 2* (gamma / (gamma - 1))* R* T0* (1 - (pe_p0) ** ((gamma - 1) / gamma)))
 
 
 # function for computing mass flow (m_dot)
@@ -120,7 +127,6 @@ def m_dot(c_star, a_star, P0):
     a_star = np.asarray(a_star)
     P0 = np.asarray(P0)
 
-    # Compute propellant mass flow rate
     if np.any(P0 <= 0) or np.any(c_star <= 0) or np.any(a_star <= 0):
         raise ValueError("Invalid input values.")
     else:
@@ -135,7 +141,6 @@ def F_th(P0, a_star, cf):
     a_star = np.asarray(a_star)
     cf = np.asarray(cf)
 
-    # Compute theoretical thrust
     if np.any(P0 <= 0) or np.any(cf <= 0) or np.any(a_star <= 0):
         raise ValueError("Invalid input values.")
     else:
@@ -150,14 +155,7 @@ def F(m_dot, Isp, g0):
     Isp = np.asarray(Isp)
     g0 = np.asarray(g0)
 
-    # Compute thrust
     if np.any(m_dot <= 0) or np.any(Isp <= 0) or np.any(g0 <= 0):
         raise ValueError("Invalid input values.")
     else:
         return m_dot * Isp * g0
-
-
-
-
-    
-    
