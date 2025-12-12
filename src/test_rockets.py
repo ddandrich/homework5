@@ -48,7 +48,6 @@ def test_c_star_value():
 
 def test_thrust_coefficient_value():
     gamma = 1.2
-
     P0 = 5.0e6          # Pa (5 MPa chamber pressure)
     Pe = 0.0125 * P0   # exit pressure
     Pa = 0.02 * P0     # ambient pressure

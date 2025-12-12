@@ -8,7 +8,7 @@ propellant mass flow (m_dot), and thrust under standard assumptions of
 isentropic, steady, and choked flow.
 
 Note: This package can be used for rockets designed at sea level (Pe = Pa)
-and for back pressure conditions (Pe ≠ Pa).
+and for back pressure conditions (Pe =/ Pa).
 """
 
 import numpy as np
@@ -41,8 +41,8 @@ def thrust_coefficient(gamma, Pe, Pa, P0, area_ratio):
     area_ratio = np.asarray(area_ratio)
 
     # Compute pe_p0 and pa_p0 ratios
-    pe_p0 = Pe / P0
-    pa_p0 = Pa / P0
+    pe_p0 = Pe/P0
+    pa_p0 = Pa/P0
 
     # Compute the ideal thrust coefficient for back pressure conditions
     if (
